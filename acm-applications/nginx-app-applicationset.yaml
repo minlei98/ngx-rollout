@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx-multi-env
+  namespace: openshift-gitops # Or your desired namespace on the hub
+spec:
+  generators:
+  - cluster:
+      selector:
+        matchLabels:
+          environment: "*" # Select all clusters with an environment label
+      values:
+        git_path: "applications/nginx-app/overlays/{{labels.environment}}" # Use environment label for kustomize path
+        cluster_name: "{{name}}"
+  template:
+    metadata:
+      name: 'nginx-{{values.cluster_name}}-{{labels.environment}}' # Unique name for each app
+      labels:
+        environment: "{{labels.environment}}" # Propagate environment label
+    spec:
+      project: default # Or your Argo CD project
+      source:
+        repoURL: https://github.com/minlei98/ngx-rollout.git # Your GitOps repo
+        targetRevision: HEAD
+        path: "{{values.git_path}}" # Kustomize path based on environment
+      destination:
+        namespace: nginx-app # Target namespace on managed clusters
+        name: "{{values.cluster_name}}" # Cluster name from generator
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

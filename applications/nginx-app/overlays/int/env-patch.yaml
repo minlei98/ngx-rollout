@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: nginx-rollout
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23.3-alpine-int # Specific image for int
