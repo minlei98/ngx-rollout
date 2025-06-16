@@ -1,0 +1,8 @@
+apiVersion: argoproj.io/v1alpha1
+kind: RolloutManager
+metadata:
+  name: argo-rollouts-instance
+  namespace: openshift-gitops # Target namespace on managed clusters
+spec:
+  # Customize spec as needed (e.g., replicas, cluster-scoped config)
+  # For OpenShift GitOps, the default `RolloutManager` usually works.

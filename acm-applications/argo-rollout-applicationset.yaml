@@ -1,0 +1,42 @@
+# acm-platform-applications/argo-rollouts-applicationset.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: install-argo-rollouts
+  namespace: openshift-gitops # Or your desired namespace on the hub
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchExpressions:
+          - key: environment
+            operator: In
+            values:
+              - int
+              - stage
+              - prod # Target int and prod environments
+      values:
+        cluster_name: "{{name}}"
+        env_label_value: "{{metadata.labels.environment}}" # Useful for debugging/naming
+  template:
+    metadata:
+      name: 'argo-rollouts-{{values.cluster_name}}' # Unique name for each Application
+      labels:
+        component: argo-rollouts
+        environment: "{{values.env_label_value}}"
+    spec:
+      project: default # Your Argo CD project
+      source:
+        repoURL: https://github.com/minlei98/ngx-rollout.git # Your GitOps repo
+        targetRevision: HEAD
+        path: "platform/argo-rollouts/base" # Path to your RolloutManager Kustomize base
+      destination:
+        namespace: openshift-gitops # Namespace on the managed cluster where Rollouts will run
+        name: "{{values.cluster_name}}" # Target specific managed cluster
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true # Ensure openshift-gitops namespace exists if needed
+        - Replace=true # Important if resources already exist or for updates

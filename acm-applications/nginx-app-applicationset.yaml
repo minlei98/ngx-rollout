@@ -2,30 +2,41 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: nginx-multi-env
-  namespace: openshift-gitops # Or your desired namespace on the hub
+  namespace: openshift-gitops
 spec:
   generators:
   - clusters:
       selector:
-        matchLabels:
-          environment: "*" # Select all clusters with an environment label
+        matchExpressions:
+          - key: environment
+            operator: In
+            values:
+              - int
+              - stage
+              - prod
       values:
-        git_path: "applications/nginx-app/overlays/{{labels.environment}}" # Use environment label for kustomize path
+        # Pass the cluster's 'name' explicitly, although '{{name}}' often works directly.
         cluster_name: "{{name}}"
+        # Explicitly map the 'environment' label value into a custom 'env_label_value' key
+        env_label_value: "{{metadata.labels.environment}}"
+        # Retain your original git_path
+        git_path: "applications/nginx-app/overlays/{{metadata.labels.environment}}"
   template:
     metadata:
-      name: 'nginx-{{values.cluster_name}}-{{labels.environment}}' # Unique name for each app
+      # Now use the explicitly mapped value from 'values'
+      name: 'nginx-{{values.cluster_name}}'
       labels:
-        environment: "{{labels.environment}}" # Propagate environment label
+        # Now use the explicitly mapped value from 'values'
+        environment: "{{values.env_label_value}}"
     spec:
-      project: default # Or your Argo CD project
+      project: default
       source:
-        repoURL: https://github.com/minlei98/ngx-rollout.git # Your GitOps repo
+        repoURL: https://github.com/minlei98/ngx-rollout.git
         targetRevision: HEAD
-        path: "{{values.git_path}}" # Kustomize path based on environment
+        path: "{{values.git_path}}"
       destination:
-        namespace: nginx-app # Target namespace on managed clusters
-        name: "{{values.cluster_name}}" # Cluster name from generator
+        namespace: nginx-app
+        name: "{{values.cluster_name}}" # Still using cluster_name from values
       syncPolicy:
         automated:
           prune: true
