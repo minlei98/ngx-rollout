@@ -5,7 +5,7 @@ metadata:
   namespace: openshift-gitops # Or your desired namespace on the hub
 spec:
   generators:
-  - cluster:
+  - clusters:
       selector:
         matchLabels:
           environment: "*" # Select all clusters with an environment label
