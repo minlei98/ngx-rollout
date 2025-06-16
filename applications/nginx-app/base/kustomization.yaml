@@ -1,0 +1,7 @@
+# applications/nginx-app/base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment.yaml # Refers to your Argo Rollout definition
+  - service.yaml
+  - route.yaml
