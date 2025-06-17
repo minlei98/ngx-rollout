@@ -8,4 +8,4 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:stable
+        image: argoproj/rollouts-demo:yellow

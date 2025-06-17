@@ -14,15 +14,15 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.23.3 # Base image, will be patched by overlays
+        image: argoproj/rollouts-demo:blue
         ports:
-        - containerPort: 80
-        volumeMounts: 
-        - name: nginx-cache
-          mountPath: /var/cache/nginx 
-      volumes: 
-      - name: nginx-cache
-        emptyDir: {}
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 5m
   strategy:
     canary:
       steps:

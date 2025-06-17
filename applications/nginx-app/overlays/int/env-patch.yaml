@@ -8,4 +8,4 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:alpine 
+        image: argoproj/rollouts-demo:blue 
