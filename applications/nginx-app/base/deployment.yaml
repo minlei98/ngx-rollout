@@ -17,6 +17,12 @@ spec:
         image: nginx:1.23.3 # Base image, will be patched by overlays
         ports:
         - containerPort: 80
+        volumeMounts: 
+        - name: nginx-cache
+          mountPath: /var/cache/nginx 
+      volumes: 
+      - name: nginx-cache
+        emptyDir: {}
   strategy:
     canary:
       steps:
