@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: install-argo-rollouts
+  name: argo-rollouts-manager
   namespace: openshift-gitops # Or your desired namespace on the hub
 spec:
   generators:
@@ -14,7 +14,7 @@ spec:
             values:
               - int
               - stage
-              - prod # Target int and prod environments
+              - prod
       values:
         cluster_name: "{{name}}"
         env_label_value: "{{metadata.labels.environment}}" # Useful for debugging/naming
@@ -29,7 +29,7 @@ spec:
       source:
         repoURL: https://github.com/minlei98/ngx-rollout.git # Your GitOps repo
         targetRevision: HEAD
-        path: "platform/argo-rollouts/base" # Path to your RolloutManager Kustomize base
+        path: "platform/argorollouts/base" # Path to your RolloutManager Kustomize base
       destination:
         namespace: openshift-gitops # Namespace on the managed cluster where Rollouts will run
         name: "{{values.cluster_name}}" # Target specific managed cluster
